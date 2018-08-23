@@ -3,6 +3,7 @@ import tensorflow as tf
 from keras.datasets import imdb
 from keras.preprocessing import sequence
 from sklearn.metrics import f1_score
+
 # Set parameters:
 max_features = 5000
 maxlen = 400
@@ -27,24 +28,25 @@ print('x_test shape:', x_test.shape)
 
 # Initialize placeholders
 X = tf.placeholder("int32", [None, maxlen])
-Y = tf.placeholder("float32", [None,])
+Y = tf.placeholder("float32", [None, ])
 
 # Xavier initializer for tf.Variables
 xavier_init = tf.contrib.layers.xavier_initializer()
-word_embs  = tf.Variable(xavier_init([max_features, embedding_dims]))
+word_embs = tf.Variable(xavier_init([max_features, embedding_dims]))
 filters = tf.Variable(xavier_init([width, embedding_dims, n_filters]))
+
 
 def neural_net(x):
     x = tf.nn.embedding_lookup(word_embs, x)
-    x = tf.layers.dropout(inputs = x, rate=0.2)
-    x = tf.nn.conv1d(value = x, filters = filters, stride = 1, padding = 'VALID')
+    x = tf.layers.dropout(inputs=x, rate=0.2)
+    x = tf.nn.conv1d(value=x, filters=filters, stride=1, padding='VALID')
     x = tf.nn.relu(features=x)
-    x = tf.layers.max_pooling1d(inputs = x, pool_size = maxlen - 2, strides = 1,
-                                padding = 'VALID')
+    x = tf.layers.max_pooling1d(inputs=x, pool_size=maxlen - 2, strides=1,
+                                padding='VALID')
     x = tf.squeeze(x, [1])
-    x = tf.layers.dense(inputs = x, units = 250, activation = 'relu')
-    x = tf.layers.dropout(inputs = x, rate = 0.2)
-    x = tf.layers.dense(inputs = x, units = 1)
+    x = tf.layers.dense(inputs=x, units=250, activation='relu')
+    x = tf.layers.dropout(inputs=x, rate=0.2)
+    x = tf.layers.dense(inputs=x, units=1)
     return x
 
 
@@ -88,7 +90,7 @@ while i * batch_size < len(x_test):
 prediction = [int(round(t)) for t in prediction]
 
 # Use F1 metric:
-F1 = f1_score(y_true = y_test, y_pred = prediction, average = None)
+F1 = f1_score(y_true=y_test, y_pred=prediction, average=None)
 print("F1 score: ", F1)
 
 sess.close()
